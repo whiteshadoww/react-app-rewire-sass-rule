@@ -39,6 +39,7 @@ class SassRuleRewirer {
 		const sassExtension = /(\.scss|\.sass)$/;
 		const fileLoader = getLoader(config.module.rules, rule => loaderNameMatches(rule, 'file-loader'));
 
+		if(!fileLoader.exclude) fileLoader.exclude = [];
 		fileLoader.exclude.push(sassExtension);
 
 		const cssRules = getLoader(config.module.rules, rule => String(rule.test) === String(/\.css$/));
