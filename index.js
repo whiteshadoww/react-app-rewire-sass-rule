@@ -20,6 +20,26 @@ function getLoader(rules, matcher) {
 };
 
 
+// Function to find a rule with a specific loader
+function getRuleByLoader(config, loaderName) {
+	return config.module.rules.find((rule) => {
+	  // Check if 'use' property includes the loader
+	  if (Array.isArray(rule.use)) {
+		return rule.use.some((use) =>
+		  typeof use === 'string' ? use === loaderName : use.loader === loaderName
+		);
+	  }
+	  if (typeof rule.use === 'string') {
+		return rule.use === loaderName;
+	  }
+	  if (typeof rule.use === 'object' && rule.use.loader) {
+		return rule.use.loader === loaderName;
+	  }
+	  return false;
+	});
+  }
+
+
 class SassRuleRewirer {
 	constructor() {
 		this.loaderOptions = {};
@@ -37,10 +57,10 @@ class SassRuleRewirer {
 
 	rewire(config) {
 		const sassExtension = /(\.scss|\.sass)$/;
-		const fileLoader = getLoader(config.module.rules, rule => loaderNameMatches(rule, 'file-loader'));
+		const fileLoaderRule = getRuleByLoader(config, 'file-loader');
 
-		if(!fileLoader.exclude) fileLoader.exclude = [];
-		fileLoader.exclude.push(sassExtension);
+		if(!fileLoaderRule.exclude) fileLoaderRule.exclude = [];
+		fileLoaderRule.exclude.push(sassExtension);
 
 		const cssRules = getLoader(config.module.rules, rule => String(rule.test) === String(/\.css$/));
 
